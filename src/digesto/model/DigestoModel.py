@@ -82,6 +82,8 @@ class DigestoModel:
             names = [u['name'] for u in uploaded]
             filtered.extend(filter(lambda n: n['name'] not in names, normativas))
             req = service.files().list_next(previous_request=req, previous_response=res)
+            if not req:
+                break
             res = req.execute()
         return filtered
 
