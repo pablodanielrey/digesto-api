@@ -72,9 +72,10 @@ class DigestoModel:
 
     @classmethod
     def _filtrar_existentes(cls, service, parent, normativas):
-        req = service.files().list(q=f"mimeType = 'application/pdf' and '{parent}' in parents and trashed = false",
-                                   fields='nextPageToken, files(id, name)')
+        #req = service.files().list(q=f"mimeType = 'application/pdf' and '{parent}' in parents and trashed = false",
+        #                           fields='nextPageToken, files(id, name)')
         #req = service.files().list(q=f"mimeType = 'application/pdf'")
+        req = service.files().list(q=f"mimeType = 'application/pdf' and '{parent}' in parents and trashed = false")
         res = req.execute()
         filtered = []
         while res:
