@@ -12,6 +12,7 @@ ENV PIP_DEFAULT_TIMEOUT=3600
 ENV PIP_USE_MIRRORS=true
 RUN pip install --upgrade pip
 
+RUN mkdir /var/log/api
 COPY docker/pip.conf /etc/
 COPY docker/entrypoint.sh /
 COPY docker/supervisor/rest.conf /etc/supervisor/conf.d
