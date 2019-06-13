@@ -1,0 +1,5 @@
+pdfminer.six
+elasticsearch
+chardet
+ocrmypdf
+tesseract

@@ -1,0 +1,2 @@
+apt-get install liblept5
+apt-get install tesseract-ocr-all
