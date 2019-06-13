@@ -13,10 +13,11 @@ import sys
 import os
 import json
 
+
 if __name__ == '__main__':
 
     path = sys.argv[1]
-    print(f'subiendo normas desde {path}')
+    logging.debug(f'subiendo normas desde {path}')
     for (dirname, dirs, files) in os.walk(path):
         print(dirname)
         normativas = [

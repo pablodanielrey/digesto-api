@@ -56,7 +56,8 @@ class DigestoModel:
         """
         parent = cls._get_parent(service)
         faltantes = cls._filtrar_existentes(service, parent, normativas)
-        service.files().emptyTrash().execute()
+        logging.debug(f'faltan {len(faltantes)} normativas por subir')
+        #service.files().emptyTrash().execute()
         res = []
         for normativa in faltantes:
             meta = {
@@ -71,8 +72,9 @@ class DigestoModel:
 
     @classmethod
     def _filtrar_existentes(cls, service, parent, normativas):
-        #res = service.files().list(q=f"mimeType = 'application/pdf' and '{parent}' in parents").execute()
-        req = service.files().list(q=f"mimeType = 'application/pdf'")
+        req = service.files().list(q=f"mimeType = 'application/pdf' and '{parent}' in parents and trashed = false",
+                                   fields='nextPageToken, files(id, name)')
+        #req = service.files().list(q=f"mimeType = 'application/pdf'")
         res = req.execute()
         filtered = []
         while res:
