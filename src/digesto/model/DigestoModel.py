@@ -8,7 +8,7 @@
 
 """
 
-
+import logging
 from .GoogleAuthApi import GAuthApis
 
 class DigestoModel:
@@ -56,14 +56,16 @@ class DigestoModel:
         """
         parent = cls._get_parent(service)
         faltantes = cls._filtrar_existentes(service, parent, normativas)
+        service.files().emptyTrash().execute()
         res = []
         for normativa in faltantes:
             meta = {
                 'name': normativa['name'],
                 'parents': [parent]
             }
-            service.files().emptyTrash().execute()
+            logging.debug(f"subiendo archivo : {meta['name']}")
             r = service.files().create(body=meta, media_body=normativa['filename']).execute()
+            logging.debug(f"respuesta : {r}")
             res.append(r)
         return res
 
