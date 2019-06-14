@@ -97,6 +97,6 @@ class DigestoModel:
     @classmethod
     def buscar_normativa(cls, termino):
         service = cls._get_google_services()
-        results = service.files().list(q=f"fullText contains '{termino}'").execute()
+        results = service.files().list(q=f"fullText contains '{termino}'", fields="files(id,name,md5Checksum)").execute()
         files = results.get('files',[])
         return files            
