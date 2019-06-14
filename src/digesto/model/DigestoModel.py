@@ -84,7 +84,7 @@ class DigestoModel:
             if not req:
                 break
             res = req.execute()
-        filtered = filter(lambda n: n['name'] not in names, normativas)
+        filtered = list(filter(lambda n: n['name'] not in names, normativas))
         return filtered
 
     @classmethod
