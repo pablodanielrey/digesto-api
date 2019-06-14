@@ -76,15 +76,15 @@ class DigestoModel:
                                    fields='nextPageToken, files(id, name)')
         #req = service.files().list(q=f"mimeType = 'application/pdf'")
         res = req.execute()
-        filtered = []
+        names = []
         while res:
             uploaded = res.get('files',[])
-            names = [u['name'] for u in uploaded]
-            filtered.extend(filter(lambda n: n['name'] not in names, normativas))
+            names.extend([u['name'] for u in uploaded])
             req = service.files().list_next(previous_request=req, previous_response=res)
             if not req:
                 break
             res = req.execute()
+        filtered = filter(lambda n: n['name'] not in names, normativas)
         return filtered
 
     @classmethod
