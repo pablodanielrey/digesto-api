@@ -31,7 +31,11 @@ setup(name='digesto-api',
               'google-api-python-client',
               'google-auth-httplib2',
               'google-auth-oauthlib',
-              'oauth2client'
+              'oauth2client',
+              'Flask',
+              'flask-cors',
+              'gunicorn',
+              'ptvsd'
           ],
           entry_points={
             'console_scripts': [

@@ -18,6 +18,9 @@ class DigestoModel:
         'https://www.googleapis.com/auth/drive'
     ]
 
+    #PARENT_DRIVE = 'digesto'
+    PARENT_DRIVE = 'prueba'
+
     @classmethod
     def _get_google_services(cls):
         service = GAuthApis.getService(version='v3', api='drive', scopes=cls.SCOPES, username='sistemas@econo.unlp.edu.ar')
@@ -25,7 +28,7 @@ class DigestoModel:
 
     @classmethod
     def _get_parent(cls, service):
-        res = service.files().list(q="name = 'digesto' and mimeType = 'application/vnd.google-apps.folder'").execute()
+        res = service.files().list(q=f"name = '{cls.PARENT_DRIVE}' and mimeType = 'application/vnd.google-apps.folder'").execute()
         parents = res.get('files',[])
         if not parents:
             return None
