@@ -38,19 +38,20 @@ if __name__ == '__main__':
             count = count + 1
             logging.info(f"importando {count} - {a['nombre']}")
             with open(a['archivo'],'rb') as f:
-                nombre = a['nombre']
+                path = a['nombre']
                 contenido = f.read()
                 md5s = md5sum(contenido)
                 b64c = base64.b64encode(contenido)
 
-                if session.query(Archivo).filter(Archivo.nombre == nombre, Archivo.hash_ == md5s).count() <= 0:
+                if session.query(Archivo).filter(Archivo.path == path, Archivo.hash_ == md5s).count() <= 0:
                     a = Archivo()
                     a.id = str(uuid.uuid4())
                     a.created = datetime.datetime.utcnow()
-                    a.nombre = nombre
+                    a.nombre = path
+                    a.path = path
                     a.hash_ = md5s
                     a.contenido = b64c
-                    a.tipo = 'application/pdf' if '.pdf' in nombre else ''
+                    a.tipo = 'application/pdf' if '.pdf' in path else ''
                     session.add(a)
                     session.commit()
                 else:

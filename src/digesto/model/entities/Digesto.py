@@ -4,7 +4,7 @@ import os
 import json
 import uuid
 import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, Date, Boolean, ForeignKey
 
 from digesto.model.entities import Base
 
@@ -16,6 +16,7 @@ class Archivo(Base):
     modified = Column(DateTime())
 
     nombre = Column(String())
+    path = Column(String())
     hash_ = Column(String())
     tipo = Column(String())
     contenido = Column(Text())
@@ -36,10 +37,10 @@ class Norma(Base):
     modified = Column(DateTime())
 
     numero = Column(Integer())
-    fecha = Column(DateTime())
-
+    fecha = Column(Date())
     extracto = Column(String())
-    visible = Column(Boolean())
+
+    visible = Column(Boolean(), default=False)
 
     tipo_id = Column(String(), ForeignKey('tipo_norma.id'))
     emisor_id = Column(String(), ForeignKey('emisores.id'))
