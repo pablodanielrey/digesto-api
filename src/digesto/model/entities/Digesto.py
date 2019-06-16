@@ -21,6 +21,13 @@ class Archivo(Base):
     contenido = Column(Text())
 
 
+class TipoNorma(Base):
+    __tablename__ = 'tipo_norma'
+
+    id = Column(String(), primary_key=True, default=None)
+    tipo = Column(String())
+
+
 class Norma(Base):
     __tablename__ = 'normas'
 
@@ -28,17 +35,25 @@ class Norma(Base):
     created = Column(DateTime())
     modified = Column(DateTime())
 
-    numero = Column(String())
-    extracto = Column(String())
-    emisor = Column(String())
-    visible = Column(Boolean())
-    tipo = Column(String())
+    numero = Column(Integer())
     fecha = Column(DateTime())
-    
+
+    extracto = Column(String())
+    visible = Column(Boolean())
+
+    tipo_id = Column(String(), ForeignKey('tipo_norma.id'))
+    emisor_id = Column(String(), ForeignKey('emisores.id'))
     archivo_id = Column(String(), ForeignKey('archivos.id'))
 
     def __json__(self):
         return self.__dict__
+
+
+class Emisor(Base):
+    __tablename__ = 'emisores'
+
+    id = Column(String(), primary_key=True, default=None)
+    nombre = Column(String())
 
 
 class TipoRelacionNorma(Base):
