@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     host = os.environ['OLD_DB_HOST']
     port = os.environ['OLD_DB_PORT']
-    database = os.environ['OLD_DB_DATABASE']
+    database = os.environ['OLD_DB_NAME']
     user = os.environ['OLD_DB_USER']
     password = os.environ['OLD_DB_PASSWORD']
     
@@ -88,7 +88,7 @@ if __name__ == '__main__':
         proceso los números de las normas para que estén correctos
         ya le saco los caracteres que les pusieron antes de los números para solucionar las falencias del sistema
     """
-    formato = re.compile(r".*?(\d+)-.*")
+    formato = re.compile(r".*?(\d+)\w*?-.*")
     for n in normas:
         try:
             n['numero'] = n['numero'].replace('/','-')
@@ -109,10 +109,23 @@ if __name__ == '__main__':
         corrijo los números para el modelo correo. un número se puede repetir en distintos tipos de normas.
     """
     with obtener_session() as session:
-        for n in normas:
+
+
+        logging.info('obteniendo todas las normas cargadas en la base destino')
+        q = session.query(Norma.numero, extract('year',Norma.fecha), TipoNorma.tipo).join(TipoNorma)
+        normas_cargadas = [n for n in q.all()]
+        logging.info(f"normas cargadas {len(normas_cargadas)}")
+
+        normas_a_cargar = [n for n in normas if (n['numero_corregido'], n['fecha'].year, n['tipo']) not in normas_cargadas]
+        logging.info(f"normas a cargar faltantes {len(normas_a_cargar)}")
+
+        count = 0
+        for n in normas_a_cargar:
+            count = count + 1
             ano = n['fecha'].year
             tipo_id = session.query(TipoNorma.id).filter(TipoNorma.tipo == n['tipo']).one_or_none()
 
+            
             if session.query(Norma).filter(Norma.numero == n['numero_corregido'], extract('year',Norma.fecha) == ano, Norma.tipo_id == tipo_id).count() <= 0:
                 try:
                     logging.info(f"agregando norma {n['numero']}")
