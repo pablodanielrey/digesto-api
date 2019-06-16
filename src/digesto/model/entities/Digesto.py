@@ -22,7 +22,7 @@ class Archivo(Base):
 
 
 class Norma(Base):
-    __tablename__ = 'roles'
+    __tablename__ = 'normas'
 
     id = Column(String(), primary_key=True, default=None)
     created = Column(DateTime())
@@ -39,3 +39,20 @@ class Norma(Base):
 
     def __json__(self):
         return self.__dict__
+
+
+class TipoRelacionNorma(Base):
+    __tablename__ = 'tipo_relacion'
+
+    id = Column(String(), primary_key=True, default=None)
+    tipo = Column(String())
+
+
+class RelacionNorma(Base):
+    __tablename__ = 'relacion_normas'
+
+    id = Column(String(), primary_key=True, default=None)
+    norma_id = Column(String(), ForeignKey('normas.id'))
+    norma_afectada_id = Column(String(), ForeignKey('normas.id'))
+    tipo_id = Column(String(), ForeignKey('tipo_relacion.id'))
+
