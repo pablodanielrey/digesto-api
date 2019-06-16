@@ -35,7 +35,7 @@ class Norma(Base):
     tipo = Column(String())
     fecha = Column(DateTime())
     
-    archivo_id = ForeignKey(String(), 'archivos.id')
+    archivo_id = Column(String(), ForeignKey('archivos.id'))
 
     def __json__(self):
         return self.__dict__

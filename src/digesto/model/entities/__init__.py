@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
-from warden.model.entities.Digesto import *
+from digesto.model.entities.Digesto import *
 
 def crear_tablas():
     engine = create_engine('postgresql://{}:{}@{}:{}/{}'.format(
