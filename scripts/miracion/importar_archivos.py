@@ -1,4 +1,8 @@
-
+"""
+    obtiene todos los archivos de una carpeta y los importa dentro de la tabla de Archivos de la base.
+    calculando el hash determinado para cada archivo.
+    el contenido del archivo queda dentro de la base codificado en base64
+"""
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 
