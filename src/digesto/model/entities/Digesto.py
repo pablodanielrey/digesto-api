@@ -44,7 +44,10 @@ class Norma(Base):
     visible = Column(Boolean(), default=False)
 
     tipo_id = Column(String(), ForeignKey('tipo_norma.id'))
+    tipo = relationship('TipoNorma')
+
     emisor_id = Column(String(), ForeignKey('emisores.id'))
+    emisor = relationship('Emisor')
 
     archivo_id = Column(String(), ForeignKey('archivos.id'))
     archivo = relationship('Archivo')

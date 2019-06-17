@@ -1,7 +1,9 @@
 import logging
 import datetime
 from dateutil.parser import parse
-from flask import Blueprint, request, jsonify
+import base64
+
+from flask import Blueprint, request, jsonify, send_file
 
 from digesto.model import obtener_session
 from digesto.model.Utils import save_file
@@ -20,6 +22,21 @@ def subir_norma():
     
     return jsonify({'status':200, 'data':norma})
 
+@bp.route('/norma/<nid>', methods=['GET'])
+def obtener_norma(nid):
+    with obtener_session() as session:
+        n = DigestoModelLocal.obtener_norma(session, nid)
+        norma = {
+            'id': n.id,
+            'numero':n.numero,
+            'fecha': n.fecha,
+            'extracto': n.extracto,
+            'tipo': n.tipo.tipo,
+            'emisor': n.emisor.nombre,
+            'archivo_id': n.archivo_id
+        }
+        return jsonify(norma)
+
 @bp.route('/norma', methods=['GET'])
 def obtener_normas():
     sdesde = request.args.get('desde')
@@ -32,10 +49,20 @@ def obtener_normas():
         normativas = DigestoModelLocal.obtener_normas(session, desde, hasta)
         resultado = [
             {
+                'id': n.id,
                 'numero':n.numero, 
                 'fecha':n.fecha,
-                'archivo_id': n.archivo_id
+                'emisor': n.emisor.nombre,
+                'tipo': n.tipo.tipo
             }
             for n in normativas ]
 
         return jsonify({'normas':resultado})
+
+@bp.route('/archivo/<aid>', methods=['GET'])
+def obtener_archivo(aid):
+    with obtener_session() as session:
+        archivo = DigestoModelLocal.obtener_archivo(session, aid)
+        contenido = archivo.contenido
+        bs = base64.b64decode(contenido.encode())
+        return send_file(bs, attachment_filename=archivo.nombre, mimetype=archivo.tipo)
