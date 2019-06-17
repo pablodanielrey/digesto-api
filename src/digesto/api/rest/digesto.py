@@ -1,4 +1,6 @@
 import logging
+import datetime
+from dateutil.parser import parse
 from flask import Blueprint, request, jsonify
 
 from digesto.model import obtener_session
@@ -20,15 +22,20 @@ def subir_norma():
 
 @bp.route('/norma', methods=['GET'])
 def obtener_normas():
-    logging.getLogger().setLevel(logging.DEBUG)
+    sdesde = request.args.get('desde')
+    desde = parse(sdesde) if sdesde else datetime.datetime.now()  - datetime.timedelta(days=30)
+
+    shasta = request.args.get('hasta')
+    hasta = parse(shasta) if shasta else datetime.datetime.now()
+
     with obtener_session() as session:
-        normativas = DigestoModelLocal.obtener_normas(session)
+        normativas = DigestoModelLocal.obtener_normas(session, desde, hasta)
         resultado = [
             {
                 'numero':n.numero, 
                 'fecha':n.fecha,
-                'archivo_id': n.archivo.nombre
+                'archivo_id': n.archivo_id
             }
             for n in normativas ]
 
-        return jsonify(resultado)
+        return jsonify({'normas':resultado})

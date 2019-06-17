@@ -29,6 +29,7 @@ setup(name='digesto-api',
           install_requires=[
               'psycopg2-binary',
               'sqlalchemy',
+              'dateutils',
               'google-api-python-client',
               'google-auth-httplib2',
               'google-auth-oauthlib',

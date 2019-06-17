@@ -5,5 +5,5 @@ from .entities.Digesto import Norma, Archivo
 class DigestoModelLocal():
 
     @classmethod
-    def obtener_normas(cls, session):
-        return session.query(Norma).options(defer('archivo.contenido')).limit(10)
+    def obtener_normas(cls, session, desde, hasta):
+        return session.query(Norma).filter(Norma.fecha >= desde, Norma.fecha <= hasta).options(defer('archivo.contenido')).all()
