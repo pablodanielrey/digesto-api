@@ -97,7 +97,7 @@ def obtener_norma(nid):
             'emisor': n.emisor.nombre,
             'archivo_id': n.archivo_id
         }
-        return jsonify(norma)
+        return jsonify({'status':200, 'norma':norma})
 
 @bp.route('/norma', methods=['GET'])
 def obtener_normas():
