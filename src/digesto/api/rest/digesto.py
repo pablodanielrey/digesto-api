@@ -11,17 +11,36 @@ from digesto.model.Utils import save_file
 from digesto.model.DigestoModelGoogle import DigestoModelGoogle
 from digesto.model.DigestoModelLocal import DigestoModelLocal
 
-
 bp = Blueprint('digesto', __name__, url_prefix='/digesto/api/v1.0')
 
 @bp.route('/norma', methods=['POST'])
 def subir_norma():
     data = request.json
-    archivo = data['archivo']
-    norma = save_file(archivo)
-    DigestoModelGoogle.subir_normativa(norma)
     
-    return jsonify({'status':200, 'data':norma})
+    visible = data['visible']
+    norma = {
+        'numero': int(data['numero']),
+        'extracto': data['extracto'],
+        'fecha': parse(data['fecha']),
+        'tipo': data['tipo'],
+        'emisor': data['emisor'],
+        'visible': True if visible == 'true' else False
+    }
+    archivo = data['archivo']
+
+    with obtener_session() as session:
+        nombre = archivo['name']
+        mime = archivo['type']
+        b64 = archivo['contenido']
+        archivo_id = DigestoModelLocal.crear_archivo_b64(session, nombre, b64, mime)
+        norma_id = DigestoModelLocal.crear_norma(session, norma, archivo_id)
+        session.commit()
+
+    """ subo el archivo a google para full text search """
+    anorma = save_file(archivo)
+    DigestoModelGoogle.subir_normativa(anorma)
+
+    return jsonify({'status':200, 'response': {'norma': norma_id, 'archivo':archivo_id}})
 
 @bp.route('/norma/<nid>', methods=['GET'])
 def obtener_norma(nid):

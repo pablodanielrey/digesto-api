@@ -11,9 +11,7 @@ def save_file(archivo):
     b64content = archivo['contenido']
     content = base64.b64decode(b64content)
     md5s = md5sum(content)
-    #name = f"{md5s}.pdf"
-    name = archivo['name']
-    ud = f"{UPLOAD}/{name}"
+    ud = f"{UPLOAD}/{md5s}"
 
     with open(ud,'wb') as file:
         file.write(content)
