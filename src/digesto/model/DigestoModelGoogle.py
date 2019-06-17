@@ -11,7 +11,7 @@
 import logging
 from .GoogleAuthApi import GAuthApis
 
-class DigestoModel:
+class DigestoModelGoogle:
 
     SCOPES = [
         #'https://www.googleapis.com/auth/drive.metadata.readonly',

@@ -5,6 +5,7 @@ import json
 import uuid
 import datetime
 from sqlalchemy import Column, Integer, String, Text, DateTime, Date, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 
 from digesto.model.entities import Base
 
@@ -44,7 +45,9 @@ class Norma(Base):
 
     tipo_id = Column(String(), ForeignKey('tipo_norma.id'))
     emisor_id = Column(String(), ForeignKey('emisores.id'))
+
     archivo_id = Column(String(), ForeignKey('archivos.id'))
+    archivo = relationship('Archivo')
 
     def __json__(self):
         return self.__dict__

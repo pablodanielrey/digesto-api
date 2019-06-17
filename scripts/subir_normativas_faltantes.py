@@ -2,7 +2,7 @@
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 
-from digesto.model.DigestoModel import DigestoModel
+from digesto.model.DigestoModelGoogle import DigestoModelGoogle
 
 #logging.info(DigestoModel.buscar_normativa('algo'))
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
             for f in files
         ]
         try:
-            res = DigestoModel.subir_normativas(normativas)
+            res = DigestoModelGoogle.subir_normativas(normativas)
             with open('upload.json', 'w') as f:
                 for r in res:
                     print(r)
