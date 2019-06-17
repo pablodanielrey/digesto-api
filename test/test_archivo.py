@@ -61,9 +61,9 @@ def test_subir_archivo():
         assert md5_original == md5s
 
     """ limpio la base nuevamente """
-    with obtener_session() as session:
-        a = session.query(Archivo).filter(Archivo.nombre == 'prueba.pdf').options(defer('contenido')).one_or_none()
-        if a:
-            session.delete(a)
-            session.commit()
+    #with obtener_session() as session:
+    #    a = session.query(Archivo).filter(Archivo.nombre == 'prueba.pdf').options(defer('contenido')).one_or_none()
+    #    if a:
+    #        session.delete(a)
+    #        session.commit()
 

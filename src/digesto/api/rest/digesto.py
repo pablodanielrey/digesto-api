@@ -2,6 +2,7 @@ import logging
 import datetime
 from dateutil.parser import parse
 import base64
+import io
 
 from flask import Blueprint, request, jsonify, send_file
 
@@ -65,4 +66,4 @@ def obtener_archivo(aid):
         archivo = DigestoModelLocal.obtener_archivo(session, aid)
         contenido = archivo.contenido
         bs = base64.b64decode(contenido.encode())
-        return send_file(bs, attachment_filename=archivo.nombre, mimetype=archivo.tipo)
+        return send_file(io.BytesIO(bs), attachment_filename=archivo.nombre, mimetype=archivo.tipo)
