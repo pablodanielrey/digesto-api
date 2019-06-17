@@ -41,7 +41,7 @@ if __name__ == '__main__':
                 path = a['nombre']
                 contenido = f.read()
                 md5s = md5sum(contenido)
-                b64c = base64.b64encode(contenido)
+                b64c = base64.b64encode(contenido).decode('utf8')
 
                 if session.query(Archivo).filter(Archivo.path == path, Archivo.hash_ == md5s).count() <= 0:
                     a = Archivo()

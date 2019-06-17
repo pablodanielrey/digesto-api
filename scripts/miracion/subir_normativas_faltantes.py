@@ -1,13 +1,7 @@
-
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 
 from digesto.model.DigestoModelGoogle import DigestoModelGoogle
-
-#logging.info(DigestoModel.buscar_normativa('algo'))
-
-#for i in DigestoModel.listar_normativas():
-#    logging.info(i['name'])
 
 import sys
 import os
