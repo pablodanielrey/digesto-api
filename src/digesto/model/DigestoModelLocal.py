@@ -14,21 +14,25 @@ class DigestoModelLocal():
     extension = re.compile(r".*(\.[a-zA-Z]+)")
 
     @classmethod
+    def obtener_tipos_de_norma(cls, session):
+        return session.query(TipoNorma).all()
+
+    @classmethod
+    def obtener_emisores(cls, session):
+        return session.query(Emisor).all()
+
+
+    @classmethod
     def crear_norma(cls, session, norma, archivo_id):
-        en = norma['emisor']
-        eid = session.query(Emisor.id).filter(Emisor.nombre == en).one()
-
-        tt = norma['tipo']
-        tid = session.query(TipoNorma).filter(TipoNorma.tipo == tt).one()
-
         nid = str(uuid.uuid4())
         n = Norma()
+        n.created = datetime.datetime.utcnow()
         n.id = nid
         n.numero = norma['numero']
         n.extracto = norma['extracto']
         n.fecha = norma['fecha']
-        n.tipo_id = tid
-        n.emisor_id = eid
+        n.tipo_id = norma['tipo']
+        n.emisor_id = norma['emisor']
         n.visible = norma['visible']
         n.archivo_id = archivo_id
 
@@ -57,8 +61,7 @@ class DigestoModelLocal():
     @classmethod
     def crear_archivo_b64(cls, session, nombre, contenido, mime):
         b64 = contenido
-        # ver si va el .encode
-        md5s = md5sum(base64.b64decode(contenido).encode())         
+        md5s = md5sum(base64.b64decode(contenido))         
         return cls._crear_archivo(session, nombre, b64, md5s, mime)
 
     @classmethod

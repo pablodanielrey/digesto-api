@@ -13,34 +13,76 @@ from digesto.model.DigestoModelLocal import DigestoModelLocal
 
 bp = Blueprint('digesto', __name__, url_prefix='/digesto/api/v1.0')
 
+
+@bp.route('/tipo', methods=['GET'])
+def obtener_tipos_de_normativas():
+    try:
+        with obtener_session() as session:
+            tipos = DigestoModelLocal.obtener_tipos_de_norma(session)
+            resultado = [
+                {
+                    'id': e.id,
+                    'tipo': e.tipo
+                }
+                for e in tipos
+            ]
+            return jsonify({'status':200,'tipos':resultado})
+
+    except Exception as e:
+        return jsonify({'status':500, 'response': str(e)})
+
+
+@bp.route('/emisor', methods=['GET'])
+def obtener_emisores():
+    try:
+        with obtener_session() as session:
+            emisores = DigestoModelLocal.obtener_emisores(session)
+            resultado = [
+                {
+                    'id': e.id,
+                    'nombre': e.nombre
+                }
+                for e in emisores
+            ]
+            return jsonify({'status':200,'emisores':resultado})
+
+    except Exception as e:
+        return jsonify({'status':500, 'response': str(e)})
+
+
 @bp.route('/norma', methods=['POST'])
 def subir_norma():
-    data = request.json
-    
-    visible = data['visible']
-    norma = {
-        'numero': int(data['numero']),
-        'extracto': data['extracto'],
-        'fecha': parse(data['fecha']),
-        'tipo': data['tipo'],
-        'emisor': data['emisor'],
-        'visible': True if visible == 'true' else False
-    }
-    archivo = data['archivo']
+    try:
+        data = request.json
+        
+        visible = data['visible']
+        norma = {
+            'numero': int(data['numero']),
+            'extracto': data['extracto'],
+            'fecha': parse(data['fecha']),
+            'tipo': data['tipo'],
+            'emisor': data['emisor'],
+            'visible': True if visible == 'true' else False
+        }
+        archivo = data['archivo']
 
-    with obtener_session() as session:
-        nombre = archivo['name']
-        mime = archivo['type']
-        b64 = archivo['contenido']
-        archivo_id = DigestoModelLocal.crear_archivo_b64(session, nombre, b64, mime)
-        norma_id = DigestoModelLocal.crear_norma(session, norma, archivo_id)
-        session.commit()
+        with obtener_session() as session:
+            nombre = archivo['name']
+            mime = archivo['type']
+            b64 = archivo['contenido']
+            archivo_id = DigestoModelLocal.crear_archivo_b64(session, nombre, b64, mime)
+            norma_id = DigestoModelLocal.crear_norma(session, norma, archivo_id)
+            session.commit()
 
-    """ subo el archivo a google para full text search """
-    anorma = save_file(archivo)
-    DigestoModelGoogle.subir_normativa(anorma)
+        """ subo el archivo a google para full text search """
+        #anorma = save_file(archivo)
+        #DigestoModelGoogle.subir_normativa(anorma)
 
-    return jsonify({'status':200, 'response': {'norma': norma_id, 'archivo':archivo_id}})
+        return jsonify({'status':200, 'response': {'norma': norma_id, 'archivo':archivo_id}})
+
+    except Exception as e:
+        logging.exception(e)
+        return jsonify({'status':500, 'response': str(e)})
 
 @bp.route('/norma/<nid>', methods=['GET'])
 def obtener_norma(nid):
@@ -77,7 +119,7 @@ def obtener_normas():
             }
             for n in normativas ]
 
-        return jsonify({'normas':resultado})
+        return jsonify({'status':200,'normas':resultado})
 
 @bp.route('/archivo/<aid>', methods=['GET'])
 def obtener_archivo(aid):
