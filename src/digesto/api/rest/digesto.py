@@ -115,7 +115,8 @@ def obtener_normas():
                 'numero':n.numero, 
                 'fecha':n.fecha,
                 'emisor': n.emisor.nombre,
-                'tipo': n.tipo.tipo
+                'tipo': n.tipo.tipo,
+                'archivo_id': n.archivo_id
             }
             for n in normativas ]
 
