@@ -43,6 +43,9 @@ if __name__ == '__main__':
                     b64c = base64.b64encode(contenido).decode('utf8')
 
                     logging.info(f"actualizando {fullpath}")
-                    sarchivo = session.query(Archivo).filter(Archivo.hash_ == md5s).one()
-                    sarchivo.contenido = b64c
-                    session.commit()           
+                    # existen varios archivos con el mismo hash!!!
+                    #sarchivo = session.query(Archivo).filter(Archivo.hash_ == md5s).one()
+                    sarchivo = session.query(Archivo).filter(Archivo.path == path).one_or_none()
+                    if sarchivo:
+                        sarchivo.contenido = b64c
+                        session.commit()           
