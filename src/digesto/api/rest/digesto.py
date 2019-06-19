@@ -10,6 +10,7 @@ from digesto.model import obtener_session
 from digesto.model.Utils import save_file
 from digesto.model.DigestoModelGoogle import DigestoModelGoogle
 from digesto.model.DigestoModelLocal import DigestoModelLocal
+from digesto.model.DigestoModel import DigestoModel
 
 bp = Blueprint('digesto', __name__, url_prefix='/digesto/api/v1.0')
 
@@ -107,8 +108,22 @@ def obtener_normas():
     shasta = request.args.get('hasta')
     hasta = parse(shasta) if shasta else datetime.datetime.now()
 
+    ''' visible == None --> retorna todas las normas independeintemente si son visibles o no '''
+    visible = None
+    estado = request.args.get('estado', None)
+    if estado:
+        ''' pendientes '''
+        if 'P' in estado:
+            visible = False
+
+        ''' aprobadas '''
+        if 'A' in estado:
+            visible = True
+
+    texto = request.args.get('texto', None)
+
     with obtener_session() as session:
-        normativas = DigestoModelLocal.obtener_normas(session, desde, hasta)
+        normativas = DigestoModel.obtener_normas(session, desde, hasta, visible, texto)
         resultado = [
             {
                 'id': n.id,
