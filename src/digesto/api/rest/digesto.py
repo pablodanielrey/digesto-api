@@ -85,6 +85,24 @@ def subir_norma():
         logging.exception(e)
         return jsonify({'status':500, 'response': str(e)})
 
+
+@bp.route('/norma/<nid>', methods=['PUT'])
+def actualizar_norma(nid):
+    try:
+        data = request.json
+        visible = data['visible']
+        with obtener_session() as session:
+            nid = DigestoModelLocal.actualizar_norma(session, nid, visible)
+            session.commit()
+
+        return jsonify({'status':200, 'response': nid})
+
+
+    except Exception as e:
+        logging.exception(e)
+        return jsonify({'status':500, 'response': str(e)})
+
+
 @bp.route('/norma/<nid>', methods=['GET'])
 def obtener_norma(nid):
     with obtener_session() as session:
@@ -96,7 +114,8 @@ def obtener_norma(nid):
             'extracto': n.extracto,
             'tipo': n.tipo.tipo,
             'emisor': n.emisor.nombre,
-            'archivo_id': n.archivo_id
+            'archivo_id': n.archivo_id,
+            'visible': n.visible
         }
         return jsonify({'status':200, 'norma':norma})
 
@@ -131,7 +150,8 @@ def obtener_normas():
                 'fecha':n.fecha,
                 'emisor': n.emisor.nombre,
                 'tipo': n.tipo.tipo,
-                'archivo_id': n.archivo_id
+                'archivo_id': n.archivo_id,
+                'visible': n.visible
             }
             for n in normativas ]
 

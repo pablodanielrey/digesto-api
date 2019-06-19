@@ -21,6 +21,11 @@ class DigestoModelLocal():
     def obtener_emisores(cls, session):
         return session.query(Emisor).all()
 
+    @classmethod
+    def actualizar_norma(cls, session, nid, visible):
+        norma = session.query(Norma).filter(Norma.id == nid).one()
+        norma.visible = visible
+        return norma.id
 
     @classmethod
     def crear_norma(cls, session, norma, archivo_id):
@@ -44,7 +49,7 @@ class DigestoModelLocal():
         return session.query(Norma).filter(Norma.id == nid).options(defer('archivo.contenido')).one_or_none()
 
     @classmethod
-    def obtener_normas(cls, session, desde, hasta, visible=None):
+    def obtener_normas(cls, session, desde, hasta, visible=None, paths=None):
         q = session.query(Norma).filter(Norma.fecha >= desde, Norma.fecha <= hasta)
         if visible:
             q = q.filter(Norma.visible == True)
@@ -52,6 +57,9 @@ class DigestoModelLocal():
         if not visible and visible == False:
             q = q.filter(Norma.visible == False)
             
+        if paths:
+            q = q.join(Archivo).filter(Archivo.path.in_(tuple(paths)))
+
         return q.options(defer('archivo.contenido')).all()
 
 
