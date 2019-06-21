@@ -10,6 +10,14 @@
 
 import logging
 from .GoogleAuthApi import GAuthApis
+from apiclient.http import MediaInMemoryUpload, MediaFileUpload
+
+"""
+codigo de ejmplo para el archivo en memoria.
+media = MediaInMemoryUpload(file_blob, mime_type, resumable=True)
+file = drive.files().create(body={'name': filename},media_body=media)
+file.execute()
+"""
 
 class DigestoModelGoogle:
 
@@ -68,7 +76,11 @@ class DigestoModelGoogle:
                 'parents': [parent]
             }
             logging.debug(f"subiendo archivo : {meta['name']}")
-            r = service.files().create(body=meta, media_body=normativa['filename']).execute()
+            
+            media = MediaFileUpload(normativa['filename'],
+                        mimetype=normativa['mime'],
+                        resumable=True)
+            r = service.files().create(body=meta, media_body=media).execute()
             logging.debug(f"respuesta : {r}")
             res.append(r)
         return res

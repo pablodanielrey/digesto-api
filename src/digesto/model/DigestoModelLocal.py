@@ -14,6 +14,18 @@ class DigestoModelLocal():
     extension = re.compile(r".*(\.[a-zA-Z]+)")
 
     @classmethod
+    def obtener_metadatos(cls, session):
+        total = session.query(Norma).count()
+        norma = session.query(Norma).order_by(Norma.fecha.desc()).first()
+        numero = norma.numero if norma != None else 0
+
+        datos = {
+            'numero_norma':numero + 1,
+            'total': total
+        }
+        return datos
+
+    @classmethod
     def obtener_tipos_de_norma(cls, session):
         return session.query(TipoNorma).all()
 
@@ -25,6 +37,7 @@ class DigestoModelLocal():
     def actualizar_norma(cls, session, nid, visible):
         norma = session.query(Norma).filter(Norma.id == nid).one()
         norma.visible = visible
+        norma.modified = datetime.datetime.utcnow()
         return norma.id
 
     @classmethod
@@ -34,7 +47,7 @@ class DigestoModelLocal():
         n.created = datetime.datetime.utcnow()
         n.id = nid
         n.numero = norma['numero']
-        n.extracto = norma['extracto']
+        #n.extracto = norma['extracto']
         n.fecha = norma['fecha']
         n.tipo_id = norma['tipo']
         n.emisor_id = norma['emisor']
@@ -60,7 +73,7 @@ class DigestoModelLocal():
         if paths:
             q = q.join(Archivo).filter(Archivo.path.in_(tuple(paths)))
 
-        return q.options(defer('archivo.contenido')).all()
+        return q.order_by(Norma.created.desc()).options(defer('archivo.contenido')).all()
 
 
     @classmethod

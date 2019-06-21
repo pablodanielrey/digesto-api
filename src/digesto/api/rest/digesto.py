@@ -59,13 +59,17 @@ def subir_norma():
         visible = data['visible']
         norma = {
             'numero': int(data['numero']),
-            'extracto': data['extracto'],
+            #'extracto': data['extracto'],
             'fecha': parse(data['fecha']),
             'tipo': data['tipo'],
             'emisor': data['emisor'],
             'visible': True if visible == 'true' else False
         }
         archivo = data['archivo']
+
+        """ subo el archivo a google para full text search """
+        anorma = save_file(archivo)
+        DigestoModelGoogle.subir_normativa(anorma)
 
         with obtener_session() as session:
             nombre = archivo['name']
@@ -74,10 +78,6 @@ def subir_norma():
             archivo_id = DigestoModelLocal.crear_archivo_b64(session, nombre, b64, mime)
             norma_id = DigestoModelLocal.crear_norma(session, norma, archivo_id)
             session.commit()
-
-        """ subo el archivo a google para full text search """
-        #anorma = save_file(archivo)
-        #DigestoModelGoogle.subir_normativa(anorma)
 
         return jsonify({'status':200, 'response': {'norma': norma_id, 'archivo':archivo_id}})
 
@@ -110,6 +110,8 @@ def obtener_norma(nid):
         norma = {
             'id': n.id,
             'numero':n.numero,
+            'creada': n.created,
+            'modificada': n.modified,
             'fecha': n.fecha,
             'extracto': n.extracto,
             'tipo': n.tipo.tipo,
@@ -148,6 +150,8 @@ def obtener_normas():
                 'id': n.id,
                 'numero':n.numero, 
                 'fecha':n.fecha,
+                'creada':n.created,
+                'modificada':n.modified,
                 'emisor': n.emisor.nombre,
                 'tipo': n.tipo.tipo,
                 'archivo_id': n.archivo_id,
@@ -156,6 +160,16 @@ def obtener_normas():
             for n in normativas ]
 
         return jsonify({'status':200,'normas':resultado})
+
+@bp.route('/metadatos', methods=['GET'])
+def obtener_metadatos():
+    with obtener_session() as session:
+        m = DigestoModelLocal.obtener_metadatos(session)
+        r = {
+            'numero_norma': m['numero_norma'],
+            'cantidad': m['total']
+        }
+        return jsonify({'status':200, 'data':r})
 
 @bp.route('/archivo/<aid>', methods=['GET'])
 def obtener_archivo(aid):

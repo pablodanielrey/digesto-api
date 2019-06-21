@@ -19,6 +19,7 @@ def save_file(archivo):
     norma = {
         'name': archivo['name'],
         'md5': md5s,
-        'filename': ud
+        'filename': ud,
+        'mime': archivo['type']
     }
     return norma
