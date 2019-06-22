@@ -1,3 +1,4 @@
+
 from .DigestoModelLocal import DigestoModelLocal
 from .DigestoModelGoogle import DigestoModelGoogle
 
@@ -20,5 +21,14 @@ class DigestoModel:
         return normas
 
     @classmethod
-    def subir_norma(cls, session, norma):
-        pass
+    def subir_norma(cls, session, norma, archivo):
+        nombre = archivo['nombre']
+        mime = archivo['tipo']
+        b64 = archivo['contenido']
+
+        archivo = DigestoModelLocal.crear_archivo_b64(session, nombre, b64, mime)
+        norma_id = DigestoModelLocal.crear_norma(session, norma, archivo.id)
+
+        DigestoModelGoogle.subir_archivo(archivo)
+ 
+        return (norma_id, archivo.id)

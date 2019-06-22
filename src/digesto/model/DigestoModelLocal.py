@@ -11,8 +11,6 @@ from .entities.Digesto import Norma, Archivo, Emisor, TipoNorma
 
 class DigestoModelLocal():
 
-    extension = re.compile(r".*(\.[a-zA-Z]+)")
-
     @classmethod
     def obtener_metadatos(cls, session):
         total = session.query(Norma).count()
@@ -93,20 +91,17 @@ class DigestoModelLocal():
         return cls._crear_archivo(session, nombre, b64, md5s, mime)
 
     @classmethod
-    def _crear_archivo(cls, session, nombre, b64, md5s, mime):
-        aid = session.query(Archivo.id).filter(Archivo.nombre == nombre, Archivo.hash_ == md5s).one_or_none()
-        if not aid:
-            ext = cls.extension.match(nombre).group(1)
+    def _crear_archivo(cls, session, nombre, b64, hash_, mime):
+        if session.query(Archivo.id).filter(Archivo.nombre == nombre, Archivo.hash_ == hash_).count() <= 0:
             a = Archivo()
             a.id = str(uuid.uuid4())
             a.created = datetime.datetime.utcnow()
             a.nombre = nombre
-            a.path = f"{md5s}{ext}"
-            a.hash_ = md5s
+            a.hash_ = hash_
             a.contenido = b64
             a.tipo = mime
             session.add(a)
-            return a.id
+            return a
         else:
-            return aid     
+            return session.query(Archivo).filter(Archivo.nombre == nombre, Archivo.hash_ == hash_).one()     
 

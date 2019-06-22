@@ -7,7 +7,7 @@ import io
 from flask import Blueprint, request, jsonify, send_file
 
 from digesto.model import obtener_session
-from digesto.model.Utils import save_file
+
 from digesto.model.DigestoModelGoogle import DigestoModelGoogle
 from digesto.model.DigestoModelLocal import DigestoModelLocal
 from digesto.model.DigestoModel import DigestoModel
@@ -65,18 +65,19 @@ def subir_norma():
             'emisor': data['emisor'],
             'visible': True if visible == 'true' else False
         }
-        archivo = data['archivo']
 
-        """ subo el archivo a google para full text search """
-        anorma = save_file(archivo)
-        DigestoModelGoogle.subir_normativa(anorma)
+        parchivo = data['archivo']
+        if not parchivo['type'] or parchivo['type'] != 'application/pdf':
+            raise Exception('no se permite archivos sin tipo o que no sean pdf')
+
+        archivo = {
+            'contenido': parchivo['contenido'],
+            'nombre': parchivo['name'],
+            'tipo': parchivo['type']
+        }
 
         with obtener_session() as session:
-            nombre = archivo['name']
-            mime = archivo['type']
-            b64 = archivo['contenido']
-            archivo_id = DigestoModelLocal.crear_archivo_b64(session, nombre, b64, mime)
-            norma_id = DigestoModelLocal.crear_norma(session, norma, archivo_id)
+            (norma_id, archivo_id) = DigestoModel.subir_norma(session, norma, archivo)
             session.commit()
 
         return jsonify({'status':200, 'response': {'norma': norma_id, 'archivo':archivo_id}})

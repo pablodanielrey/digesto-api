@@ -9,8 +9,12 @@
 """
 
 import logging
+import base64
+
 from .GoogleAuthApi import GAuthApis
 from apiclient.http import MediaInMemoryUpload, MediaFileUpload
+
+from .Utils import obtener_path, obtener_path_completo_local
 
 """
 codigo de ejmplo para el archivo en memoria.
@@ -43,50 +47,64 @@ class DigestoModelGoogle:
         return parents[0]['id']
 
     @classmethod
-    def subir_normativa(cls, normativa):
+    def subir_archivo(cls, archivo):
         service = cls._get_google_services()
-        res = cls._subir_normativas(service, [normativa])
+        res = cls._subir_archivos(service, [archivo])
         if len(res) <= 0:
             return None
         return res[0]
         
     @classmethod
-    def subir_normativas(cls, normativas):
+    def subir_archivos(cls, archivos):
         service = cls._get_google_services()
-        res = cls._subir_normativas(service, normativas)
+        res = cls._subir_archivos(service, archivos)
         return res
 
+
     @classmethod
-    def _subir_normativas(cls, service, normativas=[]):
-        """
-            normativas = [{
-                'name': string,
-                'filename': string,
-                'md5': string
-            }]
-        """
+    def _subir_archivos(cls, service, archivos=[]):
         parent = cls._get_parent(service)
-        faltantes = cls._filtrar_existentes(service, parent, normativas)
-        logging.debug(f'faltan {len(faltantes)} normativas por subir')
-        #service.files().emptyTrash().execute()
+
+        faltantes = cls._filtrar_existentes(service, parent, archivos)
+        logging.debug(f'faltan {len(faltantes)} archivos por subir')
+
         res = []
-        for normativa in faltantes:
+        for datos in faltantes:
+            path = datos['path']
+            archivo = datos['archivo']
+
             meta = {
-                'name': normativa['name'],
+                'name': path,
                 'parents': [parent]
             }
-            logging.debug(f"subiendo archivo : {meta['name']}")
+            logging.debug(f"subiendo archivo : {path}")
             
-            media = MediaFileUpload(normativa['filename'],
-                        mimetype=normativa['mime'],
+            """
+            este codigo es para subirlo usando el disco como intermediario
+
+            path_ = obtener_path_completo_local(datos['path'])
+            with open(path_, 'wb') as f:
+                contenido = datos['archivo'].contenido
+                contenido_binario = base64.b64encode(contenido).decode('utf8')
+                f.write(contenido_binario)
+
+            media = MediaFileUpload(path_,
+                        mimetype=datos['archivo'].tipo,
                         resumable=True)
+            """
+            
+            contenido = archivo.contenido
+            contenido_binario = base64.b64decode(contenido.encode())
+            media = MediaInMemoryUpload(contenido_binario,
+                            mimetype=archivo.tipo,
+                            resumable=True)
             r = service.files().create(body=meta, media_body=media).execute()
             logging.debug(f"respuesta : {r}")
             res.append(r)
         return res
 
     @classmethod
-    def _filtrar_existentes(cls, service, parent, normativas):
+    def _filtrar_existentes(cls, service, parent, archivos=[]):
         req = service.files().list(q=f"mimeType = 'application/pdf' and '{parent}' in parents and trashed = false",
                                    fields='nextPageToken, files(id, name)')
         #req = service.files().list(q=f"mimeType = 'application/pdf'")
@@ -99,7 +117,7 @@ class DigestoModelGoogle:
             if not req:
                 break
             res = req.execute()
-        filtered = list(filter(lambda n: n['name'] not in names, normativas))
+        filtered = list(filter(lambda a: a['path'] not in names, [{'path': obtener_path(a), 'archivo': a} for a in archivos]))
         return filtered
 
     @classmethod

@@ -17,7 +17,6 @@ class Archivo(Base):
     modified = Column(DateTime())
 
     nombre = Column(String())
-    path = Column(String())
     hash_ = Column(String())
     tipo = Column(String())
     contenido = Column(Text())
