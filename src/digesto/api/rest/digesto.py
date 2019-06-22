@@ -56,14 +56,13 @@ def subir_norma():
     try:
         data = request.json
         
-        visible = data['visible']
         norma = {
             'numero': int(data['numero']),
             #'extracto': data['extracto'],
             'fecha': parse(data['fecha']),
             'tipo': data['tipo'],
             'emisor': data['emisor'],
-            'visible': True if visible == 'true' else False
+            'visible': data['visible']
         }
 
         parchivo = data['archivo']
