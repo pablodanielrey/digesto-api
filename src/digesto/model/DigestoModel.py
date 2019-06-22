@@ -28,7 +28,6 @@ class DigestoModel:
 
         archivo = DigestoModelLocal.crear_archivo_b64(session, nombre, b64, mime)
         norma_id = DigestoModelLocal.crear_norma(session, norma, archivo.id)
-
-        DigestoModelGoogle.subir_archivo(archivo)
- 
+        res = DigestoModelGoogle.subir_archivo(archivo)
+                       
         return (norma_id, archivo.id)
