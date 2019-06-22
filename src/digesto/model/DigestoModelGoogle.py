@@ -8,6 +8,7 @@
 
 """
 
+import os
 import logging
 import base64
 
@@ -30,8 +31,7 @@ class DigestoModelGoogle:
         'https://www.googleapis.com/auth/drive'
     ]
 
-    #PARENT_DRIVE = 'digesto'
-    PARENT_DRIVE = 'prueba'
+    PARENT_DRIVE = os.environ['PARENT_DRIVE']
 
     @classmethod
     def _get_google_services(cls):
