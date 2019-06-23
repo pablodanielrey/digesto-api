@@ -1,8 +1,32 @@
+
 import logging
 import datetime
 from dateutil.parser import parse
 import base64
 import io
+
+"""
+    /////////////////////////
+    inicializo warden para consultar los permisos
+"""
+import os
+VERIFY_SSL = bool(int(os.environ.get('VERIFY_SSL',0)))
+OIDC_URL = os.environ['OIDC_URL']
+
+client_id = os.environ['OIDC_CLIENT_ID']
+client_secret = os.environ['OIDC_CLIENT_SECRET']
+
+from warden.sdk.warden import Warden
+warden_url = os.environ['WARDEN_API_URL']
+warden = Warden(OIDC_URL, warden_url, client_id, client_secret, verify=VERIFY_SSL)
+"""
+    //////////////////////
+"""
+
+NORMAS_CREATE = 'urn:digesto:normas:read'
+NORMAS_UPDATE = 'urn:digesto:normas:update'
+NORMAS_DELETE = 'urn:digesto:normas:delete'
+
 
 from flask import Blueprint, request, jsonify, send_file
 
@@ -14,6 +38,21 @@ from digesto.model.DigestoModel import DigestoModel
 
 bp = Blueprint('digesto', __name__, url_prefix='/digesto/api/v1.0')
 
+@bp.route('/register', methods=['GET'])
+def registrar_permisos():
+    try:
+        tk = ''
+        datos = warden.register_system_perms(tk, 'digesto-api', permisos=[
+            NORMAS_CREATE,
+            NORMAS_DELETE,
+            NORMAS_UPDATE
+        ])
+        if not datos:
+            raise Exception('no se pudieron registrar los permisos')
+        return jsonify({'status':200, 'data':datos})
+
+    except Exception as e:
+        return jsonify({'status':500, 'response': str(e)})    
 
 @bp.route('/tipo', methods=['GET'])
 def obtener_tipos_de_normativas():
@@ -53,6 +92,10 @@ def obtener_emisores():
 
 @bp.route('/norma', methods=['POST'])
 def subir_norma():
+    token = warden._require_valid_token()
+    if not warden.has_permissions(token, permisos=[NORMAS_CREATE]):
+        return ('No tiene permisos para realizar esta acción', 403)
+    
     try:
         data = request.json
         
@@ -88,6 +131,10 @@ def subir_norma():
 
 @bp.route('/norma/<nid>', methods=['PUT'])
 def actualizar_norma(nid):
+    token = warden._require_valid_token()
+    if not warden.has_permissions(token, permisos=[NORMAS_UPDATE]):
+        return ('No tiene permisos para realizar esta acción', 403)
+
     try:
         data = request.json
         visible = data['visible']

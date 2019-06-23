@@ -37,7 +37,8 @@ setup(name='digesto-api',
               'Flask',
               'flask-cors',
               'gunicorn',
-              'ptvsd'
+              'ptvsd',
+              'warden-api'
           ],
           entry_points={
             'console_scripts': [
