@@ -198,6 +198,17 @@ def actualizar_norma(nid):
 def obtener_norma(nid):
     with obtener_session() as session:
         n = DigestoModelLocal.obtener_norma(session, nid)
+
+        if not n.visible:
+            """ chequeo para ver si tiene permiso para ver las no visibles """
+            (token,tkdata) = warden._require_valid_token()
+            if token and tkdata:
+                uid = tkdata['sub']
+                if not _chequear_usuarios_digesto(uid):
+                    return ('No tiene permisos para realizar esta acción', 403)
+            else:
+                return ('No tiene permisos para realizar esta acción', 403)
+
         norma = {
             'id': n.id,
             'numero':n.numero,
@@ -233,6 +244,15 @@ def obtener_normas():
             visible = True
 
     texto = request.args.get('texto', None)
+
+    """ chequeo para ver si tiene permiso para ver las no visibles """
+    (token,tkdata) = warden._require_valid_token()
+    if token and tkdata:
+        uid = tkdata['sub']
+        if not _chequear_usuarios_digesto(uid):
+            visible = True
+    else:
+        visible = True
 
     with obtener_session() as session:
         normativas = DigestoModel.obtener_normas(session, desde, hasta, visible, texto)
