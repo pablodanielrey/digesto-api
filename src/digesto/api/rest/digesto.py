@@ -89,11 +89,49 @@ def obtener_emisores():
     except Exception as e:
         return jsonify({'status':500, 'response': str(e)})
 
+"""
+    solo para chequear de forma intermedia los usuarios que permiten acceso a modificar
+"""
+def _chequear_usuarios_digesto(uid):
+    """
+        por ahora chequeo los uids de los usuarios.
+        bb559acd-2908-4c17-a309-4b517da3d0ce - betiana galle
+        03ed8dc9-f43f-4f78-b013-40e2f4fa90f5 - fabiana puebla
+        77979435-b43f-4c8b-91a9-5a84ecb46261 - graciela ganduglia
+        853cd3dd-739c-4423-a88e-4fe722209fc7 - julio ciappa
+        55cbbfe4-d8ec-40ce-9bd3-8e9d285a2781 - araceli mangano
+        ef596bd6-eec8-4215-a344-b9b3fb5b8044 - martin ferrari
+        4f097a2e-fa62-487f-bfe7-142ccf6f9a01 - nicolas colombo
+        e4a72493-e13f-4c86-8620-8723701013f8 - martin pietro battista
+        3209c066-c2a6-4e57-be3d-4dac0483dc90 - gabriela bauer
+        89d88b81-fbc0-48fa-badb-d32854d3d93a - pablo rey
+    """
+    uids = [
+        'bb559acd-2908-4c17-a309-4b517da3d0ce',
+        '03ed8dc9-f43f-4f78-b013-40e2f4fa90f5',
+        '77979435-b43f-4c8b-91a9-5a84ecb46261',
+        '853cd3dd-739c-4423-a88e-4fe722209fc7',
+        '55cbbfe4-d8ec-40ce-9bd3-8e9d285a2781',
+        'ef596bd6-eec8-4215-a344-b9b3fb5b8044',
+        '4f097a2e-fa62-487f-bfe7-142ccf6f9a01',
+        'e4a72493-e13f-4c86-8620-8723701013f8',
+        '3209c066-c2a6-4e57-be3d-4dac0483dc90',
+        '89d88b81-fbc0-48fa-badb-d32854d3d93a'
+    ]
+    return uid in uids
+
 
 @bp.route('/norma', methods=['POST'])
 def subir_norma():
-    token = warden._require_valid_token()
+    (token,tkdata) = warden._require_valid_token()
+    """
+        !!!! TODO: esto se debe activar ni bien esté operativa la nueva version de warden
+
     if not warden.has_permissions(token, permisos=[NORMAS_CREATE]):
+        return ('No tiene permisos para realizar esta acción', 403)
+    """
+    uid = tkdata['sub']
+    if not _chequear_usuarios_digesto(uid):
         return ('No tiene permisos para realizar esta acción', 403)
     
     try:
@@ -131,8 +169,14 @@ def subir_norma():
 
 @bp.route('/norma/<nid>', methods=['PUT'])
 def actualizar_norma(nid):
-    token = warden._require_valid_token()
+    (token,tkdata) = warden._require_valid_token()
+    """
+        TODO: usar este codigo cuando se implemente la nueva versión de warden
     if not warden.has_permissions(token, permisos=[NORMAS_UPDATE]):
+        return ('No tiene permisos para realizar esta acción', 403)
+    """
+    uid = tkdata['sub']
+    if not _chequear_usuarios_digesto(uid):
         return ('No tiene permisos para realizar esta acción', 403)
 
     try:

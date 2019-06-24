@@ -130,6 +130,18 @@ class DigestoModelGoogle:
     @classmethod
     def buscar_normativa(cls, termino):
         service = cls._get_google_services()
-        results = service.files().list(q=f"fullText contains '{termino}'", fields="files(id,name,md5Checksum)").execute()
-        files = results.get('files',[])
-        return files            
+        parent = cls._get_parent(service)
+        req = service.files().list(q=f"mimeType = 'application/pdf' and '{parent}' in parents and fullText contains '{termino}' and trashed = false",
+                                   fields='nextPageToken, files(id, name)')
+        res = req.execute()
+        names = []
+        while res:
+            uploaded = res.get('files',[])
+            names.extend([u['name'] for u in uploaded])
+            req = service.files().list_next(previous_request=req, previous_response=res)
+            if not req:
+                break
+            res = req.execute()
+        #results = service.files().list(q=f"fullText contains '{termino}'", fields="files(id,name,md5Checksum)").execute()
+        #files = results.get('files',[])
+        return names

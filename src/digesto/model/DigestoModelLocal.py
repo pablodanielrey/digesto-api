@@ -69,7 +69,8 @@ class DigestoModelLocal():
             q = q.filter(Norma.visible == False)
             
         if paths:
-            q = q.join(Archivo).filter(Archivo.path.in_(tuple(paths)))
+            hashes = [p.split('.')[0] for p in paths]
+            q = q.join(Archivo).filter(Archivo.hash_.in_(tuple(hashes)))
 
         return q.order_by(Norma.created.desc()).options(defer('archivo.contenido')).all()
 

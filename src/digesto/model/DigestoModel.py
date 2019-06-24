@@ -13,8 +13,7 @@ class DigestoModel:
             if len(normativas_google) <= 0:
                 return []
 
-            paths = [n['name'] for n in normativas_google]
-            normas = DigestoModelLocal.obtener_normas(session, desde, hasta, visible, paths)
+            normas = DigestoModelLocal.obtener_normas(session, desde, hasta, visible, normativas_google)
             return normas
 
         normas = DigestoModelLocal.obtener_normas(session, desde, hasta, visible)
