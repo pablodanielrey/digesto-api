@@ -30,12 +30,14 @@ if __name__ == '__main__':
             archivos = session.query(Archivo).options(defer('contenido')).all()
             for archivo in archivos:
                 nombre = archivo.nombre
-                logging.info(f"escribiendo archivo {nombre}")
-                contenido = archivo.contenido
-                contenido_binario = base64.b64decode(contenido.encode())
                 path_completo = f"{path}/{nombre}"
-                with open(path_completo, 'wb') as f:
-                    f.write(contenido_binario)
+                if not os.path.isfile(path_completo):
+                    logging.info(f"escribiendo archivo {nombre}")
+                    contenido = archivo.contenido
+                    contenido_binario = base64.b64decode(contenido.encode())
+                    
+                    with open(path_completo, 'wb') as f:
+                        f.write(contenido_binario)
 
         except Exception as e:
             logging.exception(e)
