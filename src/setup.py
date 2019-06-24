@@ -41,8 +41,8 @@ setup(name='digesto-api',
               'warden-api'
           ],
           entry_points={
-            'console_scripts': [
-                'rest=assistance.api.rest.main:main'
-            ]
+#            'console_scripts': [
+#                'rest=digesto.api.rest.main:main'
+#            ]
           }
       )
