@@ -1,3 +1,4 @@
+import datetime
 
 from .DigestoModelLocal import DigestoModelLocal
 from .DigestoModelGoogle import DigestoModelGoogle
@@ -13,6 +14,8 @@ class DigestoModel:
             if len(normativas_google) <= 0:
                 return []
 
+            """ ya que traigo todas las de google,. en la base busco por todas las normativas """
+            desde = datetime.datetime.utcnow() - datetime.timedelta(days=99999)
             normas = DigestoModelLocal.obtener_normas(session, desde, hasta, visible, normativas_google)
             return normas
 
