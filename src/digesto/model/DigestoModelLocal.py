@@ -60,6 +60,11 @@ class DigestoModelLocal():
         return session.query(Norma).filter(Norma.id == nid).options(defer('archivo.contenido')).one_or_none()
 
     @classmethod
+    def obtener_normas_por_numero(cls, session, numero):
+        return session.query(Norma).filter(Norma.numero == numero).options(defer('archivo.contenido')).all()
+
+
+    @classmethod
     def obtener_normas(cls, session, desde, hasta, visible=None, paths=None):
         q = session.query(Norma).filter(Norma.fecha >= desde, Norma.fecha <= hasta)
         if visible:

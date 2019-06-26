@@ -1,14 +1,33 @@
 import datetime
+import re
+import logging
 
 from .DigestoModelLocal import DigestoModelLocal
 from .DigestoModelGoogle import DigestoModelGoogle
 
 class DigestoModel:
 
+    digitos = re.compile(r'\d+')
+
     @classmethod
     def obtener_normas(cls, session, desde, hasta, visible=None, texto=None):
 
-        if texto:
+        if not texto or texto == '':
+            normas = DigestoModelLocal.obtener_normas(session, desde, hasta, visible)
+            return normas
+
+        if cls.digitos.match(texto):
+            ''' lo que se busca es solo un número, así que busco tambien por número de norma '''
+            try:
+                numero = int(texto)
+                normas_numero = DigestoModelLocal.obtener_normas_por_numero(session, numero)
+                return normas_numero
+            except Exception as e:
+                logging.exeption(e)
+                return []
+
+        else:
+
             ''' busco el texto en google '''
             normativas_google = DigestoModelGoogle.buscar_normativa(texto)
             if len(normativas_google) <= 0:
@@ -17,10 +36,9 @@ class DigestoModel:
             """ ya que traigo todas las de google,. en la base busco por todas las normativas """
             desde = datetime.datetime.utcnow() - datetime.timedelta(days=99999)
             normas = DigestoModelLocal.obtener_normas(session, desde, hasta, visible, normativas_google)
+
             return normas
 
-        normas = DigestoModelLocal.obtener_normas(session, desde, hasta, visible)
-        return normas
 
     @classmethod
     def subir_norma(cls, session, norma, archivo):
