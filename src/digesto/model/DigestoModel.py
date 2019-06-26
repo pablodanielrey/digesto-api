@@ -7,7 +7,7 @@ from .DigestoModelGoogle import DigestoModelGoogle
 
 class DigestoModel:
 
-    digitos = re.compile(r'\d+')
+    digitos = re.compile(r'^\d+$')
 
     @classmethod
     def obtener_normas(cls, session, desde, hasta, visible=None, texto=None):
@@ -23,7 +23,7 @@ class DigestoModel:
                 normas_numero = DigestoModelLocal.obtener_normas_por_numero(session, numero)
                 return normas_numero
             except Exception as e:
-                logging.exeption(e)
+                logging.exception(e)
                 return []
 
         else:
