@@ -12,7 +12,7 @@
 from setuptools import setup, find_packages
 
 setup(name='digesto-api',
-          version='0.0.1.a1',
+          version='1.0.0',
           description='Proyecto que implementa la api del digesto institucional',
           url='https://github.com/pablodanielrey/digesto-api',
           author='Desarrollo DiTeSi, FCE',
