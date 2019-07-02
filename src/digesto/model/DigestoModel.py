@@ -20,7 +20,7 @@ class DigestoModel:
             ''' lo que se busca es solo un número, así que busco tambien por número de norma '''
             try:
                 numero = int(texto)
-                normas_numero = DigestoModelLocal.obtener_normas_por_numero(session, numero)
+                normas_numero = DigestoModelLocal.obtener_normas_por_numero(session, numero, visible)
                 return normas_numero
             except Exception as e:
                 logging.exception(e)
