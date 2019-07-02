@@ -157,7 +157,7 @@ def subir_norma():
         }
 
         with obtener_session() as session:
-            (norma_id, archivo_id) = DigestoModel.subir_norma(session, norma, archivo)
+            (norma_id, archivo_id) = DigestoModel.subir_norma(session, norma, archivo, creador=uid)
             session.commit()
 
         return jsonify({'status':200, 'response': {'norma': norma_id, 'archivo':archivo_id}})

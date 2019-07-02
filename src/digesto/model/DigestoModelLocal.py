@@ -39,7 +39,7 @@ class DigestoModelLocal():
         return norma.id
 
     @classmethod
-    def crear_norma(cls, session, norma, archivo_id):
+    def crear_norma(cls, session, norma, archivo_id, creador):
         nid = str(uuid.uuid4())
         n = Norma()
         n.created = datetime.datetime.utcnow()
@@ -51,6 +51,7 @@ class DigestoModelLocal():
         n.emisor_id = norma['emisor']
         n.visible = norma['visible']
         n.archivo_id = archivo_id
+        n.creador_id = creador
 
         session.add(n)
         return nid

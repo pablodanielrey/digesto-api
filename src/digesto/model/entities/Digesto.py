@@ -35,6 +35,7 @@ class Norma(Base):
     id = Column(String(), primary_key=True, default=None)
     created = Column(DateTime())
     modified = Column(DateTime())
+    creador_id = Column(String())
 
     numero = Column(Integer())
     fecha = Column(Date())
