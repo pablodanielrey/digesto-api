@@ -121,6 +121,14 @@ def _chequear_usuarios_digesto(uid):
     return uid in uids
 
 
+@bp.route('/google', methods=['GET'])
+def subir_normas_faltantes_a_google():
+    with obtener_session() as session:
+        archivos = DigestoModelLocal.obtener_archivos(session)
+        res = DigestoModelGoogle.subir_archivos(archivos)
+        return jsonify({'status':200, 'response':res})
+
+
 @bp.route('/norma', methods=['POST'])
 def subir_norma():
     (token,tkdata) = warden._require_valid_token()

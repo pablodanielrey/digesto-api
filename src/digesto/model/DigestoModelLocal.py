@@ -92,6 +92,11 @@ class DigestoModelLocal():
         return session.query(Archivo).filter(Archivo.id == aid).options(defer('contenido')).one_or_none()
 
     @classmethod
+    def obtener_archivos(cls, session):
+        archivos = session.query(Archivo).options(defer('contenido')).all()
+        return archivos
+
+    @classmethod
     def crear_archivo_binario(cls, session, nombre, contenido:bytes, mime):
         b64 = base64.b64encode(contenido).decode('utf8')
         md5s = md5sum(contenido)

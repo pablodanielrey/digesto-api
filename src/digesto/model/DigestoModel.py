@@ -48,6 +48,10 @@ class DigestoModel:
 
         archivo = DigestoModelLocal.crear_archivo_b64(session, nombre, b64, mime)
         norma_id = DigestoModelLocal.crear_norma(session, norma, archivo.id, creador)
-        res = DigestoModelGoogle.subir_archivo(archivo)
+        """ 
+            como anda muy lento comento el tema de subir al archivo a google en el upload del usuario
+            y creo la api upload para hacerlo mediante un cron.
+        """
+        #res = DigestoModelGoogle.subir_archivo(archivo)
                        
         return (norma_id, archivo.id)
