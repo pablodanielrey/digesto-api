@@ -125,7 +125,7 @@ def _chequear_usuarios_digesto(uid):
 def subir_normas_faltantes_a_google():
     with obtener_session() as session:
         archivos = DigestoModelLocal.obtener_archivos(session)
-        res = DigestoModelGoogle.subir_archivos(archivos)
+        res = DigestoModelGoogle.subir_archivos(session, archivos)
         return jsonify({'status':200, 'response':res})
 
 

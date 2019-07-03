@@ -11,11 +11,15 @@
 import os
 import logging
 import base64
+import datetime
+import uuid
 
 from .GoogleAuthApi import GAuthApis
 from apiclient.http import MediaInMemoryUpload, MediaFileUpload
 
 from .Utils import obtener_path, obtener_path_completo_local
+from .entities.Google import Sincronizacion
+
 
 """
 codigo de ejmplo para el archivo en memoria.
@@ -47,7 +51,7 @@ class DigestoModelGoogle:
         return parents[0]['id']
 
     @classmethod
-    def subir_archivo(cls, archivo):
+    def subir_archivo(cls, session, archivo):
         service = cls._get_google_services()
         res = cls._subir_archivos(service, [archivo])
         if len(res) <= 0:
@@ -55,17 +59,16 @@ class DigestoModelGoogle:
         return res[0]
         
     @classmethod
-    def subir_archivos(cls, archivos):
+    def subir_archivos(cls, session, archivos):
         service = cls._get_google_services()
-        res = cls._subir_archivos(service, archivos)
+        res = cls._subir_archivos(session, service, archivos)
         return res
 
 
     @classmethod
-    def _subir_archivos(cls, service, archivos=[]):
+    def _subir_archivos(cls, session, service, archivos=[]):
         parent = cls._get_parent(service)
-
-        faltantes = cls._filtrar_existentes(service, parent, archivos)
+        faltantes = cls._filtrar_existentes(session, service, parent, archivos)
         logging.debug(f'faltan {len(faltantes)} archivos por subir')
 
         res = []
@@ -104,7 +107,14 @@ class DigestoModelGoogle:
         return res
 
     @classmethod
-    def _filtrar_existentes(cls, service, parent, archivos=[]):
+    def _filtrar_existentes(cls, session, service, parent, archivos=[]):
+
+        """ chequeo los ids que no estan sincronizados """
+        #aids = session.query(Sincronizacion.archivo_id).all()        
+        #sincronizados = [aid for aid in aids]
+        #faltantes = [a for a in archivos if a.id not in sincronizados]
+
+
         req = service.files().list(q=f"mimeType = 'application/pdf' and '{parent}' in parents and trashed = false",
                                    fields='nextPageToken, files(id, name)')
         #req = service.files().list(q=f"mimeType = 'application/pdf'")
@@ -118,6 +128,23 @@ class DigestoModelGoogle:
                 break
             res = req.execute()
         filtered = list(filter(lambda a: a['path'] not in names, [{'path': obtener_path(a), 'archivo': a} for a in archivos]))
+
+        """ ajusto las sicnronizaciones con los archivos que ya existen en google """
+        for a in archivos:
+            encontrado = False
+            for f in filtered:
+                if a.id == f['archivo'].id:
+                    encontrado = True
+                    break
+            if not encontrado:
+                if session.query(Sincronizacion).filter(Sincronizacion.archivo_id == a.id).count() <= 0:
+                    s = Sincronizacion()
+                    s.id = str(uuid.uuid4())
+                    s.archivo_id = a.id
+                    s.created = datetime.datetime.utcnow()
+                    s.respuesta = 'ya existía en google'
+                    session.add(s)
+
         return filtered
 
     @classmethod
