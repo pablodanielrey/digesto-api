@@ -212,16 +212,26 @@ def obtener_norma(nid):
         norma = {
             'id': n.id,
             'numero':n.numero,
-            'creada': n.created,
-            'modificada': n.modified,
-            'fecha': n.fecha,
+            'creada': n.created.isoformat() if n.created else None,
+            'modificada': n.modified.isoformat() if n.modified else None,
+            'fecha': _convertir_a_aware_utc(n.fecha) if n.fecha else None,
             'extracto': n.extracto,
             'tipo': n.tipo.tipo,
             'emisor': n.emisor.nombre,
             'archivo_id': n.archivo_id,
+            'creador_id': n.creador_id,
             'visible': n.visible
         }
         return jsonify({'status':200, 'norma':norma})
+
+
+def _convertir_a_aware_utc(date):
+    """
+        TODO: horrible hack!!! ahora se asume que es timezone -3
+    """
+    hora = datetime.time(3)
+    return datetime.datetime.combine(date, hora)
+
 
 @bp.route('/norma', methods=['GET'])
 def obtener_normas():
@@ -260,12 +270,13 @@ def obtener_normas():
             {
                 'id': n.id,
                 'numero':n.numero, 
-                'fecha':n.fecha,
-                'creada':n.created,
-                'modificada':n.modified,
+                'fecha':_convertir_a_aware_utc(n.fecha) if n.fecha else None,
+                'creada':n.created.isoformat() if n.created else None,
+                'modificada':n.modified.isoformat() if n.modified else None,
                 'emisor': n.emisor.nombre,
                 'tipo': n.tipo.tipo,
                 'archivo_id': n.archivo_id,
+                'creador_id': n.creador_id,
                 'visible': n.visible
             }
             for n in normativas ]
