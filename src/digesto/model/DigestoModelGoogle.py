@@ -107,8 +107,8 @@ class DigestoModelGoogle:
 
             req = service.files().list(q=f"mimeType = 'application/pdf' and '{parent}' in parents and trashed = false and name = '{path}'",
                                             fields='nextPageToken, files(id, name)')
-            res = req.execute()
-            subidos = res.get('files',[])
+            raux = req.execute()
+            subidos = raux.get('files',[])
             if len(subidos) > 0:
                 logging.debug(f"archivo ya subido : {path}")
                 continue
