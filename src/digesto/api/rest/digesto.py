@@ -123,11 +123,20 @@ def _chequear_usuarios_digesto(uid):
 
 @bp.route('/google', methods=['GET'])
 def subir_normas_faltantes_a_google():
-    with obtener_session() as session:
-        archivos = DigestoModelLocal.obtener_archivos(session)
-        res = DigestoModelGoogle.subir_archivos(session, archivos)
-        return jsonify({'status':200, 'response':res})
+    try:
+        with obtener_session() as session:
+            archivos = DigestoModelLocal.obtener_archivos(session)
+            generados = DigestoModelGoogle.actualizar_sincronizados_desde_google(session, archivos)
+            session.commit()
 
+            response = DigestoModelGoogle.subir_archivos(session, archivos)
+            session.commit()
+
+            return jsonify({'status':200, 'response':response})
+
+    except Exception as e:
+        logging.exception(e)
+        return jsonify({'status':500, 'response': str(e)})
 
 @bp.route('/norma', methods=['POST'])
 def subir_norma():

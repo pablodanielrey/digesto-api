@@ -68,7 +68,9 @@ class DigestoModelGoogle:
     @classmethod
     def _subir_archivos(cls, session, service, archivos=[]):
         parent = cls._get_parent(service)
-        faltantes = cls._filtrar_existentes(session, service, parent, archivos)
+
+        sincronizados = [s[0] for s in session.query(Sincronizacion.archivo_id).all()]
+        faltantes = [a for a in archivos if a.id not in sincronizados]
         logging.debug(f'faltan {len(faltantes)} archivos por subir')
 
         res = []
@@ -105,6 +107,41 @@ class DigestoModelGoogle:
             logging.debug(f"respuesta : {r}")
             res.append(r)
         return res
+
+
+    @classmethod
+    def actualizar_sincronizados_desde_google(cls, session, archivos=[]):
+        service = cls._get_google_services()
+        parent = cls._get_parent(service)
+
+        """ busco todos los archivos de google """
+        req = service.files().list(q=f"mimeType = 'application/pdf' and '{parent}' in parents and trashed = false",
+                                   fields='nextPageToken, files(id, name)')
+        #req = service.files().list(q=f"mimeType = 'application/pdf'")
+        res = req.execute()
+        names = []
+        while res:
+            uploaded = res.get('files',[])
+            names.extend([u['name'] for u in uploaded])
+            req = service.files().list_next(previous_request=req, previous_response=res)
+            if not req:
+                break
+            res = req.execute()
+        
+        """ genero los registros de sincronizacion """
+        sincronizados = [s[0] for s in session.query(Sincronizacion.archivo_id).all()]
+        generados = []
+        for a in archivos:
+            path = obtener_path(a)
+            if path in names and a.id not in sincronizados:
+                s = Sincronizacion()
+                s.id = str(uuid.uuid4())
+                s.archivo_id = a.id
+                s.created = datetime.datetime.utcnow()
+                session.add(s)
+                generados.append(a.id)
+        return generados
+
 
     @classmethod
     def _filtrar_existentes(cls, session, service, parent, archivos=[]):
