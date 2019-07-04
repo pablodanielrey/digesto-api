@@ -1,5 +1,8 @@
+import sys
+ip = sys.argv[1]
+
 import ptvsd
-ptvsd.enable_attach("supersecreto", address = ('0.0.0.0', 11304))
+ptvsd.enable_attach("supersecreto", address = (ip, 11304))
 ptvsd.wait_for_attach()
 
 from .wsgi import app
