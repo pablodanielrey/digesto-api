@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Remote Attach",
+            "type": "python",
+            "request": "attach",
+            "port": 11304,
+            "host": "163.10.56.57",
+            "pathMappings": [
+                {
+                    "localRoot": "/src/github/digesto-api",
+                    "remoteRoot": "/src/github/digesto-api"
+                }
+            ]
+        },
+        {
             "name": "Python: Flask",
             "type": "python",
             "request": "launch",
