@@ -75,7 +75,23 @@ class DigestoModelGoogle:
             return None
 
         service = cls._get_google_services()
-        return cls._subir_archivos(service, archivos)
+        response = cls._subir_archivos(service, archivos)
+
+        sincronizados = []
+        for archivo in archivos:
+            path = obtener_path(archivo)
+            for r in response:
+                if r['name']:
+                    name = r['name']
+                    if name == path:
+                        s = Sincronizacion()
+                        s.id = str(uuid.uuid4())
+                        s.archivo_id = archivo.id
+                        s.created = datetime.datetime.utcnow()
+                        session.add(s)
+                        sincronizados.append(archivo.id)
+
+        return {'sinc':sincronizados, 'google':response}
 
     @classmethod
     def _subir_archivos(cls, service, archivos=[]):
