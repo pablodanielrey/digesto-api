@@ -12,7 +12,7 @@
 from setuptools import setup, find_packages
 
 setup(name='digesto-api',
-          version='1.0.6',
+          version='1.0.7',
           description='Proyecto que implementa la api del digesto institucional',
           url='https://github.com/pablodanielrey/digesto-api',
           author='Desarrollo DiTeSi, FCE',
@@ -27,6 +27,7 @@ setup(name='digesto-api',
           ],
           packages=find_packages(exclude=['contrib', 'docs', 'test*']),
           install_requires=[
+              'importlib_metadata',
               'psycopg2-binary',
               'sqlalchemy',
               'dateutils',
