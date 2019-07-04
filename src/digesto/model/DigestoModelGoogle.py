@@ -81,9 +81,8 @@ class DigestoModelGoogle:
     def _subir_archivos(cls, service, archivos=[]):
         parent = cls._get_parent(service)
         res = []
-        for datos in archivos:
-            path = datos['path']
-            archivo = datos['archivo']
+        for archivo in archivos:
+            path = obtener_path(archivo)
 
             meta = {
                 'name': path,
