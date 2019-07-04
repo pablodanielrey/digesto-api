@@ -81,7 +81,7 @@ class DigestoModelGoogle:
         for archivo in archivos:
             path = obtener_path(archivo)
             for r in response:
-                if 'name' in r['name']:
+                if 'name' in r and r['name']:
                     name = r['name']
                     if name == path:
                         s = Sincronizacion()
