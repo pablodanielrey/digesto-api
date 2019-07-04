@@ -4,9 +4,11 @@ import datetime
 import re
 
 from sqlalchemy.orm import defer
+from sqlalchemy import exists
 
 from .Utils import md5sum
 from .entities.Digesto import Norma, Archivo, Emisor, TipoNorma
+from .entities.Google import Sincronizacion
 
 
 class DigestoModelLocal():
@@ -95,6 +97,12 @@ class DigestoModelLocal():
     def obtener_archivos(cls, session):
         archivos = session.query(Archivo).options(defer('contenido')).all()
         return archivos
+
+    @classmethod
+    def obtener_archivos_no_sincronizados(cls, session):
+        archivos = session.query(Archivo).filter(~ exists().where(Sincronizacion.archivo_id == Archivo.id)).options(defer('contenido')).all()
+        return archivos
+
 
     @classmethod
     def crear_archivo_binario(cls, session, nombre, contenido:bytes, mime):

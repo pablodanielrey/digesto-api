@@ -14,12 +14,15 @@ import base64
 import datetime
 import uuid
 
+from sqlalchemy.orm import defer
+from sqlalchemy import exists
+
 from .GoogleAuthApi import GAuthApis
 from apiclient.http import MediaInMemoryUpload, MediaFileUpload
 
 from .Utils import obtener_path, obtener_path_completo_local
 from .entities.Google import Sincronizacion
-
+from .entities.Digesto import Archivo
 
 """
 codigo de ejmplo para el archivo en memoria.
@@ -61,20 +64,24 @@ class DigestoModelGoogle:
     @classmethod
     def subir_archivos(cls, session, archivos):
         service = cls._get_google_services()
-        res = cls._subir_archivos(session, service, archivos)
+        res = cls._subir_archivos(service, archivos)
         return res
 
 
     @classmethod
-    def _subir_archivos(cls, session, service, archivos=[]):
+    def subir_archivos_no_sincronizados(cls, session):
+        archivos = session.query(Archivo).filter(~ exists().where(Sincronizacion.archivo_id == Archivo.id)).options(defer('contenido')).all()
+        if len(archivos) <= 0:
+            return None
+
+        service = cls._get_google_services()
+        return cls._subir_archivos(service, archivos)
+
+    @classmethod
+    def _subir_archivos(cls, service, archivos=[]):
         parent = cls._get_parent(service)
-
-        sincronizados = [s[0] for s in session.query(Sincronizacion.archivo_id).all()]
-        faltantes = [a for a in archivos if a.id not in sincronizados]
-        logging.debug(f'faltan {len(faltantes)} archivos por subir')
-
         res = []
-        for datos in faltantes:
+        for datos in archivos:
             path = datos['path']
             archivo = datos['archivo']
 
