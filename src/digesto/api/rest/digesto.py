@@ -4,6 +4,8 @@ import datetime
 from dateutil.parser import parse
 import base64
 import io
+from importlib_metadata import version
+
 
 """
     /////////////////////////
@@ -37,6 +39,10 @@ from digesto.model.DigestoModelLocal import DigestoModelLocal
 from digesto.model.DigestoModel import DigestoModel
 
 bp = Blueprint('digesto', __name__, url_prefix='/digesto/api/v1.0')
+
+@bp.route('/version', methods=['GET'])
+def obtener_version():
+    return jsonify({'status':200, 'response':version('digesto-api')})
 
 @bp.route('/register', methods=['GET'])
 def registrar_permisos():
