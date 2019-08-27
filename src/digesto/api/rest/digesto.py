@@ -167,7 +167,10 @@ def subir_norma():
     
     try:
         data = request.json
-        
+
+        if not data['tipo']:
+            raise Exception('Se debe seleccionar tipo de norma')
+
         norma = {
             'numero': int(data['numero']),
             #'extracto': data['extracto'],
